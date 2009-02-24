@@ -1,0 +1,13 @@
+ActiveRecordLike
+================
+
+You can delegate persistance to other mediums instead of SQL. Be it XML, Memcache, LDAP, even a C# object, whatever.
+ActiveRecordLike gets a storage adapter and uses it instead of SQL unlike the ActiveRecord itself.
+You can adapt, scaffold and show anything at all.
+
+Unit tests include an example CacheAdapter where the ActiveRecords are going to the cache as the storage directly. 
+Using CacheAdapter as an example you can write new storage adapters.
+
+I actually used this library to scaffold objects returned by a C# library!
+
+Copyright (c) 2009 [Umur Ozkul <umur.ozkul@gmail.com>], released under the MIT license

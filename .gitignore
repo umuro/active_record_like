@@ -1,0 +1,16 @@
+db/schema.rb
+config/database.yml
+*~
+log/*.log
+test/rails_root/log/*.log
+doc
+coverage
+.svn/
+pkg
+*.kdevses
+public/images/active_scaffold
+public/stylesheets/active_scaffold
+public/javascripts/active_scaffold
+public/images/calendar_date_select
+public/stylesheets/calendar_date_select/
+public/javascripts/calendar_date_select/
