@@ -64,7 +64,7 @@ class Base < ActiveRecord::BaseWithoutTable
   end
   def destroy_without_callbacks
     if super
-      answer = adapter.delete_one(self.id) 
+      answer = adapter.delete_one(self.class.name, self.id) 
       if answer == 1 
         self
       end
