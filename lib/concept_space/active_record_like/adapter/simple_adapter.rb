@@ -35,7 +35,7 @@ class SimpleAdapter
       end
     end
 
-    def delete_all(klass_name, conditions = nil)    
+    def delete_all(klass_name, conditions = {})    
       unless conditions.empty?
         filter(find_every_regardles(klass_name), conditions) do | r |
           r.destroy
