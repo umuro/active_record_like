@@ -34,10 +34,28 @@ class SimpleAdapter
         delete_one(klass_name, ids)
       end
     end
+
+    def delete_all(klass_name, conditions = nil)    
+      unless conditions.empty?
+        filter(find_every_regardles(klass_name), conditions) do | r |
+          r.destroy
+        end
+      else
+        delete_regardless(klass_name)
+      end
+    end
+
+    ## Deletes all rows
+    def delete_regardless(klass_name)
+        all_keys_regardles(klass_name) do | id |
+          delete_one(klass_name, id)
+        end
+    end
+
     
     def find_every(klass_name, conditions={})
       unless conditions.empty?
-        filter(find_every_regardles(klass_name), conditions).size
+        filter(find_every_regardles(klass_name), conditions)
       else
         find_every_regardless(klass_name)
       end
@@ -85,11 +103,6 @@ class SimpleAdapter
     def delete_one(klass_name, id)
       method_missing :delete
     end
-    
-    ## Deletes all rows
-#    def delete_regardless(klass_name)
-#      method_missing :delete_regardless
-#    end
     
     ## Answers all rows
     def find_every_regardless(klass_name)

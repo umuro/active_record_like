@@ -19,7 +19,11 @@ class Base < ActiveRecord::BaseWithoutTable
   
   class << self
     def count(conditions)
-      adapter.count(conditions)
+      adapter.count(self.name, conditions)
+    end
+
+    def delete_all(conditions = {})
+      adapter.delete_all(self.name )
     end
     def find_every(conditions)
       rows = adapter.find_every(self.name, conditions)
