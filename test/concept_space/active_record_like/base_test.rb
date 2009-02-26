@@ -8,11 +8,12 @@ module ActiveRecordLike
 class BaseTest < NoFixtureTestCase
   abstract
   
-
-  
   context "Any Base" do
     setup do
       @object = model_class.new
+    end
+    teardown do
+      @object.destroy
     end
    
     should "have an adapter" do
@@ -28,7 +29,7 @@ class BaseTest < NoFixtureTestCase
 
     context "It's Adapter" do
       should "be kind of adapter" do
-        assert @object.adapter.ancestor?(Adapter::FullAdapter)
+        assert @object.adapter.ancestors.include?(Adapter::SimpleAdapter)
       end
     end
   end
@@ -43,6 +44,9 @@ class BaseTest < NoFixtureTestCase
   context "A new record" do
     setup do
       @new_record = model_instance
+    end
+    teardown do
+      @new_record.destroy
     end
     
     context "sanity" do
@@ -71,21 +75,26 @@ class BaseTest < NoFixtureTestCase
       @old_record.save
       assert_not_nil @old_record.id
     end
+    teardown do
+      @old_record.destroy
+    end
     should "be found" do
       found = model_class.find(@old_record.id)
+      assert found
+      assert_not_nil found['id']
       assert_not_nil found.id
       assert_equal @old_record.id, found.id
     end
     should "be destroyable" do
       assert_equal @old_record, @old_record.destroy
-      assert_nil model_class.find(@old_record.id)
+      assert_nil model_class.find( @old_record.id )
     end
     should "be deletable" do
       assert_equal 1, model_class.delete(@old_record.id)
     end
     should "be updatable" do
       @old_record[model_attribute] = "new name"
-      @old.record.save
+      @old_record.save
       found = model_class.find(@old_record.id)
       assert_equal @old_record[model_attribute], found[model_attribute]
     end

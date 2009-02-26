@@ -23,11 +23,11 @@ class CacheAdapter < SimpleAdapter
     end
 
     def create(klass_name, attributes)
-          unless attributes[:id]
+          unless attributes['id']
             id = self.new_key(klass_name)
             #attributes[:id] = id
           else
-            id = attributes[:id]
+            id = attributes['id']
           end
           Rails.cache.write(id,attributes)   
           all_keys_add(klass_name, id)
@@ -55,11 +55,18 @@ class CacheAdapter < SimpleAdapter
     end
     
     def find_one(klass_name, id)
-      Rails.cache.fetch(id)
+      attributes = Rails.cache.fetch(id)
+      if attributes
+        attributes = attributes.dup  #unfreeze
+        attributes['id']=id
+      end
+      attributes
     end
     
     def update(klass_name, id, attributes)
-      Rails.cache.write(id, attributes)
+      a = attributes.dup
+      a.delete 'id'
+      Rails.cache.write(id, a)
     end
 
     def new_key(klass_name)

@@ -29,21 +29,23 @@ class Base < ActiveRecord::BaseWithoutTable
       rows = adapter.find_every(self.name, conditions)
       rows.collect! { |record| instantiate(record) }
     end
-    def find_initial(conditions)
+    def find_initial(conditions={})
       record = adapter.find_initial(self.name, conditions)
       instantiate(record)
     end
-    def find_last(conditions)
+    def find_last(conditions={})
       record = adapter.find_last(self.name, conditions)
       instantiate(record)
     end
-    def find_some(conditions)
-      rows = adapter.find_some(self.name, conditions)
+    def find_some(ids, conditions={})
+      #TODO Conditions
+      rows = adapter.find_some(self.name, ids)
       rows.collect! { |record| instantiate(record) }
     end
-    def find_one(conditions)
-      record = adapter.find_one(self.name, conditions)
-      instantiate(record)
+    def find_one(id, conditions={})
+      #TODO Conditions
+      record = adapter.find_one(self.name, id)
+      instantiate(record) if record
     end
     def delete(id)
       adapter.delete_one(self.name, id)
@@ -52,28 +54,22 @@ class Base < ActiveRecord::BaseWithoutTable
 
   def create_without_callbacks
     new_id_or_nil = adapter.create(self.class.name, self.attributes) if super
-    
-    if new_id_or_nil 
-      self.id = new_id_or_nil
-      #check_it = self.id
-     # 1
-    end
-
-    #self.id = new_id_or_nil unless new_id_or_nil
+    self.id = new_id_or_nil if new_id_or_nil 
     @new_record = false
     new_id_or_nil
   end
+
   def update_without_callbacks
     adapter.update(self.class.name, self.id, self.attributes) if super
   end
+  
   def destroy_without_callbacks
     if super
       answer = adapter.delete_one(self.class.name, self.id) 
-      if answer == 1 
-        self
-      end
+      self
     end
   end
+
 end
 
   end
