@@ -15,5 +15,13 @@ Copyright (c) 2009 [Umur Ozkul <umur.ozkul@gmail.com>], released under the MIT l
 Requirements for parent project
 ===============================
 git submodule add git://github.com/umuro/active_record_base_without_table.git vendor/plugins/active_record_base_without_table
+git submodule add git://github.com/assaf/uuid.git vendor/plugins/uuid
+
 environment.rb:
-config.gem "treetop", :version => '1.2.4' # For ActiveRecordLike"
+  config.gem "haml", :version => '2.0.9'
+  config.gem "thoughtbot-shoulda", :lib => "shoulda", :version => '2.9.1', :source=>"http://gems.github.com"
+  config.gem "thoughtbot-factory_girl", :lib => "factory_girl", :version => '1.2.0', :source=>"http://gems.github.com"
+  config.gem "macaddr", :version => '1.0.0' # For ActiveRecordLike"
+  config.gem "treetop", :version => '1.2.4' # For ActiveRecordLike"
+  config.gem  'patternmatching',  :version=>'0.2.5' 
+  config.gem 'mocha', :version=>'0.9.5'
