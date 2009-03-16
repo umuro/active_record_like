@@ -1,0 +1,20 @@
+grammar FindOrderSqlSyntax
+include FindConditionsSqlSyntax
+  rule sqlFindOrderString
+    SP* sqlFindOrder SP* { def code; sqlFindOrder.code; end }
+  end 
+  
+  rule sqlFindOrder
+  	sqlRef SP+ sqlOrder { 
+  		def code 
+  			build {sql_sort_order( this.sqlRef.code, this.sqlOrder.code )}
+  		end }
+  end
+  
+  rule sqlOrder
+  	( [aA] [sS] [cC]
+  	/
+  	[dD] [eE] [sS] [cC] )
+  	{ def code; text_value.downcase; end } 
+  end
+end

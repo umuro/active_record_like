@@ -1,3 +1,4 @@
+require 'ConceptSpace::ActiveRecordLike::Adapter::OptionsHandler'.underscore
 module ConceptSpace
   module ActiveRecordLike
     module Adapter
@@ -7,19 +8,29 @@ module ConceptSpace
 # to provide a active record class independent design
 
 ## attributes: Hash of object property values
-## row == attributes
+## row ==nd attributes
 ## rows: Array of rows
 ## ids: Array of ids
 ## id: Any type of id to match a row
 
-#DEBUG
-
 class SimpleAdapter 
   class << self
+
+      def build &block
+        PatternMatching::MatchExec::ExecuteAs::FuncNodeBuilder.new({}, self).instance_eval(&block)
+      end
+      
+    def handler_klass
+      ConceptSpace::ActiveRecordLike::Adapter::OptionsHandler
+    end
     
-    def count(klass_name, conditions={})
-      unless conditions.empty?
-        filter(find_every_regardles(klass_name), conditions).size
+    def count(klass_name, options=nil)
+#      conditions = options && options[:conditions] 
+      if options && !options.empty?
+        #PLAN
+        options_handler = handler_klass.new :klass_name=>klass_name, :primary_key=>primary_key(klass_name), :adapter=>self
+        plan = options_handler.plan build{count(klass_name, options)}
+        options_handler.eval plan
       else
         count_regardless(klass_name)
       end
@@ -35,11 +46,12 @@ class SimpleAdapter
       end
     end
 
-    def delete_all(klass_name, conditions = {})    
-      unless conditions.empty?
-        filter(find_every_regardles(klass_name), conditions) do | r |
-          r.destroy
-        end
+    def delete_all(klass_name, conditions = nil)    
+      if conditions && ! conditions.empty?
+         #PLAN
+        options_handler = handler_klass.new :klass_name=>klass_name, :primary_key=>primary_key(klass_name), :adapter=>self
+        plan = options_handler.plan build{delete_all(klass_name, conditions )   }
+        options_handler.eval plan
       else
         delete_regardless(klass_name)
       end
@@ -52,32 +64,69 @@ class SimpleAdapter
         end
     end
 
-    
-    def find_every(klass_name, conditions={})
-      unless conditions.empty?
-        filter(find_every_regardles(klass_name), conditions)
+    def find_every(klass_name, options=nil)
+#      conditions = options && options[:conditions]
+      if options && !options.empty?
+        #PLAN
+        options_handler = handler_klass.new :klass_name=>klass_name, :primary_key=>primary_key(klass_name), :adapter=>self
+        plan = options_handler.plan build{find_every(klass_name, options)}
+        options_handler.eval plan
       else
         find_every_regardless(klass_name)
       end
     end
 
-    def find_initial(klass_name, conditions={})
-      find_every(klass_name, conditions).first
+    ## Answers row with id
+    def find_one_regarding(klass_name, id, options=nil)
+        if options && !options.empty?
+            options_handler = handler_klass.new :klass_name=>klass_name, :primary_key=>primary_key(klass_name), :adapter=>self
+            plan = options_handler.plan build{find_one_regarding(klass_name, id, options)}
+            options_handler.eval plan
+        else
+            find_one(klass_name, id)  
+        end
+    #PLAN
     end
     
-    def find_last(klass_name, conditions={})
-      find_every(klass_name, conditions).last
+    def find_initial(klass_name, options=nil)
+      #PLAN
+        options_handler = handler_klass.new :klass_name=>klass_name, :primary_key=>primary_key(klass_name), :adapter=>self
+        plan = options_handler.plan build{find_initial(klass_name, options)}
+        options_handler.eval plan
     end
     
-    def find_some(klass_name, ids)
+    def find_last(klass_name, options=nil)
+      #PLAN
+        options_handler = handler_klass.new :klass_name=>klass_name, :primary_key=>primary_key(klass_name), :adapter=>self
+        plan = options_handler.plan build{find_last(klass_name, options)}
+        options_handler.eval plan
+    end
+      
+    def find_some_regardless(klass_name, ids)
       ids.inject([]) {|rows, id|
         attributes = find_one(klass_name, id)
         rows << attributes if attributes
         rows
       }
     end
-    
+
+    def find_some(klass_name, ids, options = nil )
+#      conditions = options && options[:conditions] 
+       if options && !options.empty?
+        #PLAN
+        options_handler = handler_klass.new :klass_name=>klass_name, :primary_key=>primary_key(klass_name), :adapter=>self
+        plan = options_handler.plan build{find_last(klass_name, options)}
+        options_handler.eval plan
+      else
+        find_some_regardless(klass_name, ids)
+      end
+  end
+  
     ## Abstract Methods
+public    
+    def primary_key(klass_name)
+      'id'
+    end
     
     ## Answers a collection of ids/keys
     def all_keys_regardless(klass_name)
@@ -94,8 +143,7 @@ class SimpleAdapter
 
     ## Answers the count of all rows
     def count_regardless(klass_name)
-      method_missing :count_regardless
-      #returns integer
+      all_keys_regardless(klass_name).size
     end
     
     ## Deletes row with given id
@@ -115,7 +163,7 @@ class SimpleAdapter
       method_missing :find_one
       #returns attributes or nil
     end
-    
+
      ## Automatic key generator if necessary
      #not called if there is an id in row (optional)
     def new_key #optional if manual keys are provided
@@ -141,8 +189,6 @@ class SimpleAdapter
     end
   end
 end
-
-
 
     end
   end

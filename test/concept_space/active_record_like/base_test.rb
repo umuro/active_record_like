@@ -8,6 +8,10 @@ module ActiveRecordLike
 class BaseTest < NoFixtureTestCase
   abstract
   
+  def model_class; method_missing :model_class; end
+  def model_attribute_to_update; method_missing :model_attribute_to_update; end #e.g. [:name, "new name"]
+  def model_instance; model_class.new; end
+    
   context "Any Base" do
     setup do
       @object = model_class.new
@@ -59,7 +63,7 @@ class BaseTest < NoFixtureTestCase
     
     should "be saveable" do
       assert @new_record.save
-      assert @new_record.id
+      assert_not_nil @new_record.id
     end
     should "destroy because it does not exist anyway" do
       assert_equal @new_record, @new_record.destroy
@@ -72,14 +76,18 @@ class BaseTest < NoFixtureTestCase
   context "And old record" do
     setup do
       @old_record = model_instance
+puts "OLD RECORD SAVING"
       @old_record.save
+puts "OLD RECORD SAVED"
       assert_not_nil @old_record.id
     end
     teardown do
       @old_record.destroy
     end
     should "be found" do
+puts "OLD RECORD FINDING"
       found = model_class.find(@old_record.id)
+puts "OLD RECORD FOUND"
       assert found
       assert_not_nil found['id']
       assert_not_nil found.id
@@ -93,10 +101,11 @@ class BaseTest < NoFixtureTestCase
       assert_equal 1, model_class.delete(@old_record.id)
     end
     should "be updatable" do
-      @old_record[model_attribute] = "new name"
+      @old_record[model_attribute_to_update[0]] = model_attribute_to_update[1]
       @old_record.save
       found = model_class.find(@old_record.id)
-      assert_equal @old_record[model_attribute], found[model_attribute]
+      assert_not_nil found
+      assert_equal @old_record[model_attribute_to_update[0]], found[model_attribute_to_update[0]]
     end
     should "be listable" do
       all_records = model_class.all
@@ -105,9 +114,23 @@ class BaseTest < NoFixtureTestCase
       assert_not_nil found
     end
     #TODO offset, limit, sort order    
+  end #context An old record
+  
+  def model_population
+     10.times.collect {|i| model_instance }   
   end
   
-end
+  context "In Model Population"    do
+    context "Class" do      
+      should "count all"
+      should "find all"
+      should "find with offset"
+      should "find with limit"
+      should "find with sort order"    
+    end
+  end
+  
+end #class BaseTest
 
 end
 end

@@ -44,12 +44,12 @@ class SimpleAdapterTest < NoFixtureTestCase
           should "have find_every return []" do
             assert_equal [], @a.find_every(@klass_name)
           end
-          should "have find_initial return nil" do
-            assert_nil @a.find_initial(@klass_name)
-          end
-          should "have find_last return nil" do
-            assert_nil @a.find_last(@klass_name)
-          end
+#          should "have find_initial return nil" do
+#            assert_nil @a.find_initial(@klass_name)
+#          end
+#          should "have find_last return nil" do
+#            assert_nil @a.find_last(@klass_name)
+#          end
           should "have find_some return nil" do
             assert_equal [], @a.find_some(@klass_name, [1,27,103])          
           end
@@ -171,12 +171,12 @@ class SimpleAdapterTest < NoFixtureTestCase
             all = @a.find_every(@klass_name)
             assert_equal @record_ids.size, all.size - @count_before_test
           end
-          should "have find_initial do it" do
-            attributes = @a.find_initial(@klass_name)
-          end
-          should "have find_last do it" do
-            attributes = @a.find_last(@klass_name)
-          end
+#          should "have find_initial do it" do
+#            attributes = @a.find_initial(@klass_name)
+#          end
+#          should "have find_last do it" do
+#            attributes = @a.find_last(@klass_name)
+#          end
           should "have find_some do it" do
             all = @a.find_some(@klass_name, @record_ids)
             assert_equal @record_ids.size, all.size
@@ -186,9 +186,27 @@ class SimpleAdapterTest < NoFixtureTestCase
             assert_equal @record_rows.first[:id], attributes[:id]
           end
   
-          should "have find_every with offset" 
-          should "have find_every with limit" 
-          should "have find_every with sort order" 
+          should "have find_every with offset" do
+              all = @a.find_every(@klass_name, :offset=>2)
+#              puts all.inspect
+              assert_equal @record_ids.size-2, all.size
+         end
+          should "have find_every with limit" do
+              all = @a.find_every(@klass_name, :limit=>1)
+#              puts all.inspect
+              assert_equal 1, all.size            
+         end
+          should "have find_every with offset limit" do
+              all = @a.find_every(@klass_name, :offset=>2, :limit=>1)
+ #             puts all.inspect
+              assert_equal 1, all.size            
+         end
+           should "have find_every with sort order" do
+              attribute_name = target_update_attributes.keys.first.to_s
+              all = @a.find_every(@klass_name, :order=>"#{attribute_name} DESC")
+#              puts all.inspect
+              assert_equal @record_ids.size, all.size            
+         end          
         end #End of Full Storage
       end #End of Any Storage  
 end #End of SimpleAdapterTest

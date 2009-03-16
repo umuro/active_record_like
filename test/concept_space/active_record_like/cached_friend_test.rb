@@ -12,8 +12,8 @@ class CachedFriendTest < CacheBaseTest
   def model_class
     CachedFriend if self.class == CachedFriendTest
   end
-  def model_attribute
-    :name
+  def model_attribute_to_update
+    [:name, "new name"]
   end
 end
 

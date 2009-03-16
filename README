@@ -11,3 +11,9 @@ Using CacheAdapter as an example you can write new storage adapters.
 I actually used this library to scaffold objects returned by a C# library!
 
 Copyright (c) 2009 [Umur Ozkul <umur.ozkul@gmail.com>], released under the MIT license
+
+Requirements for parent project
+===============================
+git submodule add git://github.com/umuro/active_record_base_without_table.git vendor/plugins/active_record_base_without_table
+environment.rb:
+config.gem "treetop", :version => '1.2.4' # For ActiveRecordLike"

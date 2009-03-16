@@ -1,0 +1,253 @@
+grammar FindConditionsSqlSyntax
+  rule sqlFindConditions
+    SP* sqlBoolOrExpression SP* { def code; sqlBoolOrExpression.code; end }
+  end
+
+  rule sqlBoolOrExpression
+    sqlBoolAndExpression SP* [oO] [rR] EOWSP sqlBoolOrExpression {
+    	def code
+    		build { sql_msg(this.sqlBoolAndExpression.code, 'or', this.sqlBoolOrExpression.code) }	
+    	end }
+    / 
+    sqlBoolAndExpression
+  end
+  
+  rule sqlBoolAndExpression
+    sqlBoolNotExpression SP* [aA] [nN] [dD] EOWSP sqlBoolAndExpression {
+    	def code
+    		build { sql_msg(this.sqlBoolNotExpression.code, 'and', this.sqlBoolAndExpression.code) }	
+    	end }
+    / 
+    sqlBoolNotExpression
+  end
+  
+  rule sqlBoolNotExpression
+  	[nN] [oO] [tT] EOWSP sqlBoolNotExpression {
+  		def code
+  			build { sql_msg(this.sqlBoolNotExpression.code, 'not') }
+  		end }
+  	/
+  	sqlBoolTruthExpression
+  end
+  
+  rule sqlBoolTruthExpression
+  	'(' SP* sqlBoolOrExpression SP* ')' { def code; sqlBoolOrExpression.code; end}
+  	/
+  	sqlBoolTestExpression
+  end
+  
+  rule sqlBoolTestExpression
+  	sqlBoolBetweenExpression 
+  	/
+  	sqlBoolNullExpression  	
+  	/
+  	sqlBoolInExpression  	
+  	/
+  	sqlBoolComparison  	  	
+  end
+  
+  rule sqlBoolNullExpression
+  	sqlRef SP* [iI] [sS] SP+ [nN] [uU] [lL]  [lL] EOW {
+  		def code
+  			build {sql_msg(this.sqlRef.code, 'is_null')}
+  		end }
+  	/
+  	sqlRef SP* [iI] [sS] SP+ [nN] [oO] [tT] (SP)+ [nN] [uU] [lL]  [lL] EOW {
+  		def code
+  			build {sql_msg(sql_msg(this.sqlRef.code, 'is_null'), 'not')}
+  		end }
+  end
+  
+  rule sqlBoolInExpression
+  	sqlArithmetic SP* [iI] [nN] EOWSP sqlRange {
+  		def code
+  			build {sql_msg(this.sqlArithmetic.code, 'in', this.sqlRange.code)}
+  		end }
+  	/
+  	sqlArithmetic SP* [nN] [oO] [tT] SP+ [iI] [nN] EOWSP sqlRange  {
+  		def code
+  			build {sql_msg(sql_msg(this.sqlArithmetic.code, 'in', this.sqlRange.code), 'not')}
+  		end }
+  end
+  
+  rule sqlRange
+  	'(' sqlLiteralsWComma ')' {def code; sqlLiteralsWComma.code; end}
+  end
+  rule sqlLiteralsWComma
+  	sqlLiteral SP* ',' SP* sqlLiteralsWComma {
+  		def code
+  			build {cons(this.sqlLiteral.code, this.sqlLiteralsWComma.code)}
+  		end }
+  	/
+  	sqlLiteral
+  end
+  
+  rule sqlBoolBetweenExpression
+  	sqlArithmetic SP* [bB] [eE] [tT] [wW] [eE] [eE] [nN] EOWSP sqlArithmetic2 SP* [aA] [nN] [dD] EOWSP sqlArithmetic3 {
+  		def code
+  			build {sql_msg(this.sqlArithmetic.code, 'between', range(this.sqlArithmetic2.code, this.sqlArithmetic3.code))}
+  		end}
+  end
+   
+  rule sqlBoolComparison
+    sqlArithmetic SP* sqlBoolComparisonOperator SP* sqlArithmetic2 {
+    	def code
+    		build { sql_msg( this.sqlArithmetic.code, this.sqlBoolComparisonOperator.code, this.sqlArithmetic2.code) }
+    	end }
+  end
+
+  rule sqlArithmetic2
+  	sqlArithmetic
+  end
+  rule sqlArithmetic3
+  	sqlArithmetic
+  end  
+  rule sqlArithmetic
+  	sqlAdditive 
+  end
+  
+  rule sqlAdditive
+  	sqlMultiplicative (SP*) sqlAdditiveOperator SP* sqlAdditive {
+  		def code
+  			build {sql_msg(this.sqlMultiplicative.code, this.sqlAdditiveOperator.code, this.sqlAdditive.code)}
+  		end }
+  	/
+  	sqlMultiplicative
+  end
+  
+  rule sqlMultiplicative
+  	sqlUnary (SP*) sqlMultiplicativeOperator SP* sqlMultiplicative {
+  		def code
+  			build {sql_msg(this.sqlUnary.code, this.sqlMultiplicativeOperator.code, this.sqlMultiplicative.code)}
+  		end }
+  	/
+  	sqlUnary
+  end
+  
+  rule sqlUnary
+  	sqlUnaryOperator SP* sqlUnary {
+  		def code
+  			build {sql_msg(this.sqlUnary.code, this.sqlUnaryOperator.code)}
+  		end }
+  	/
+  	sqlFunctionCall
+  end
+  
+  rule sqlFunctionCall
+  	sqlFunction  SP* '(' SP* sqlArithmetic SP* ')' SP*  {
+  		def code
+  			build {sql_msg(this.sqlArithmetic.code, this.sqlFunction.code)}
+  		end }
+  	/
+  	sqlFunction  SP* '(' SP* sqlArithmetic SP* ',' SP* sqlArithmetic2 SP* ')' SP*  {
+  		def code
+  			build {sql_msg(this.sqlArithmetic.code, this.sqlFunction.code, this.sqlArithmetic2.code)}
+  		end }
+  	/
+  	sqlValue
+  end
+
+  rule sqlFunction
+  	'' sqlName EOW  {
+  		def code
+  			sqlName.code.downcase
+  		end }
+  end
+    
+  rule sqlValue 
+  	'(' SP* sqlArithmetic SP* ')' {def code; sqlArithmetic.code; end}
+  	/
+  	sqlLiteral
+  	/
+  	sqlRef
+  end
+    
+  rule sqlRef
+    sqlTable '.' sqlColumn {
+    	def code
+    		build {sql_ref(this.sqlColumn.code, this.sqlTable.code)}
+    	end }
+    / 
+    '' sqlColumn2 {
+    	def code
+    		build {sql_ref(this.sqlColumn2.code)}
+    	end }
+  end
+
+  rule sqlTable
+    '"'  sqlName  '"' { def code; sqlName.code; end }
+    / sqlName 
+  end
+
+  rule sqlColumn2
+  	sqlColumn
+  end
+  rule sqlColumn
+    '"'  sqlName  '"' { def code; sqlName.code; end }
+    / sqlName 
+  end
+  
+  rule sqlName
+    [a-zA-Z_] [a-zA-Z0-9_]* { def code; text_value; end }
+  end
+  
+  rule SP
+   (" " / "\n" / "\t" / "\r")
+  end
+  
+  rule EOW
+  	![a-zA-Z0-9_]
+  end
+  
+  rule EOWSP
+  	![a-zA-Z0-9_] SP*
+  end
+  
+  rule sqlLiteral
+    sqlStringLiteral
+    /
+    sqlNumberLiteral
+  end
+  
+  rule sqlStringLiteral
+     ['] sqlStringLiteralInsideQuotes ['] {
+     	def code
+     		sqlStringLiteralInsideQuotes.code
+     	end }
+  end
+
+  rule sqlStringLiteralInsideQuotes
+  	(!"'" .)* { def code; text_value; end }
+  end
+  
+  rule sqlNumberLiteral
+  	sqlFloatLiteral
+	/
+  	sqlIntegerLiteral
+  end
+  rule sqlIntegerLiteral
+  	[0-9]+ { def code; text_value.to_i; end } 
+  end
+
+  rule sqlFloatLiteral
+  	sqlIntegerLiteral '.' sqlIntegerLiteral  ( [eE] sqlUnaryOperator? sqlIntegerLiteral )? {
+  		def code; text_value.to_f; end }
+  end
+  
+  rule sqlUnaryOperator
+  	( '-' / '+' ) { def code; text_value; end } 
+  end
+  
+  rule sqlAdditiveOperator
+  	( '-' / '+' / '||') {	def code; text_value; end } 
+  end
+
+  rule sqlMultiplicativeOperator
+  	( '*' / '/' ) {	def code; text_value; end } 
+  end
+  
+  rule sqlBoolComparisonOperator 
+  	('=' / '!=' / '>=' / '<=' / '<>' / '>' / '<' / [lL] [iI] [kK] [eE] ) {
+  		def code; text_value.downcase; end } 
+  end 
+end

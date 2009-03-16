@@ -1,4 +1,4 @@
-puts "Loading CacheAdapter"
+puts "Loading CacheAdapter" if RAILS_ENV=='test'
 
 require 'concept_space/active_record_like/adapter/simple_adapter'
 
@@ -27,8 +27,9 @@ class CacheAdapter < SimpleAdapter
             id = self.new_key(klass_name)
             #attributes[:id] = id
           else
-            id = attributes['id']
+            id = attributes[primary_key(klass_name)]
           end
+#puts "WRITE(create) ID: #{id}" if RAILS_ENV == 'test'
           Rails.cache.write(id,attributes)   
           all_keys_add(klass_name, id)
           id
@@ -55,17 +56,19 @@ class CacheAdapter < SimpleAdapter
     end
     
     def find_one(klass_name, id)
+#puts "FETCH ID: #{id}" if RAILS_ENV == 'test'      
       attributes = Rails.cache.fetch(id)
       if attributes
         attributes = attributes.dup  #unfreeze
-        attributes['id']=id
+        attributes[primary_key(klass_name)]=id
       end
       attributes
     end
     
     def update(klass_name, id, attributes)
       a = attributes.dup
-      a.delete 'id'
+      a.delete primary_key(klass_name)
+#puts "WRITE(update) #{id}"      if RAILS_ENV == 'test'      
       Rails.cache.write(id, a)
     end
 

@@ -8,7 +8,7 @@ module ActiveRecordLike
 
 class CacheBase < Base
 #  adapter ConceptSpace::ActiveRecordLike::Adapter::CacheAdapter
-  adapter Adapter::CacheAdapter
+  adapter Adapter::Verbose.new(Adapter::CacheAdapter)
 end
 
 end
