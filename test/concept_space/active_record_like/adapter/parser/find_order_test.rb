@@ -9,27 +9,28 @@ module ConceptSpace
 
 class FindOrderTest < ConceptSpace::NoFixtureTestCase
 
-context "Class with only grammar" do
-  setup do
-    FindOrder.maker.removeTarget
-  end
-  should "create parser" do
-    assert ! FindOrder::maker.uptodate?
-    assert_not_nil FindOrder::maker.parser
-    assert FindOrder::maker.uptodate?
-  end
-end
-context "Class with new grammar" do
-  setup do
-    FindOrder.maker.touchSource
-  end
-  should "refresh parser" do
-    assert ! FindOrder.maker.uptodate?
-    assert_not_nil FindOrder.maker.parser
-    sleep 0.3 #File system caches dates
-    assert FindOrder.maker.uptodate?
-  end
-end
+#NOT CROSS PLATFORM
+#context "Class with only grammar" do
+#  setup do
+#    FindOrder.maker.removeTarget
+#  end
+#  should "create parser" do
+#    assert ! FindOrder::maker.uptodate?
+#    assert_not_nil FindOrder::maker.parser
+#    assert FindOrder::maker.uptodate?
+#  end
+#end
+#context "Class with new grammar" do
+#  setup do
+#    FindOrder.maker.touchSource
+#  end
+#  should "refresh parser" do
+#    assert ! FindOrder.maker.uptodate?
+#    assert_not_nil FindOrder.maker.parser
+#    sleep 0.3 #File system caches dates
+#    assert FindOrder.maker.uptodate?
+#  end
+#end
 
 extend PatternMatching
 

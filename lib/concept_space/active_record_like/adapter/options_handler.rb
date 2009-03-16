@@ -107,12 +107,12 @@ class OptionsHandler
 #      with {the.primary_key == c && the.klass_name == t} do
 #      reduce build { fn('set_select', fn("some_instances" ,"Klass", [value]), code) }
 #    end    
-    func(:reduce).seems as {fn("set_select" ,fn("all_instances" ,:klass) , msg(msg(sql_ref(:c, :t) ,"==" , :value), '&&', :code))},
-      with {the.primary_key == c && the.klass_name == t} do
+    func(:reduce).seems as {fn("set_select" ,fn("all_instances" ,:klass) , msg(msg(sql_ref(:c, :tbl) ,"==" , :value), '&&', :code))},
+      with {the.primary_key == c && the.klass_name == tbl} do
       reduce build { fn('set_select', fn("some_instances" ,"Klass", [value]), code) }
     end    
-    func(:reduce).seems as {fn("set_select" ,fn("all_instances" ,:klass) ,msg(sql_ref(:c, :t) ,"==" , :value))},
-      with {the.primary_key == c && the.klass_name == t} do
+    func(:reduce).seems as {fn("set_select" ,fn("all_instances" ,:klass) ,msg(sql_ref(:c, :tbl) ,"==" , :value))},
+      with {the.primary_key == c && the.klass_name == tbl} do
       reduce build { fn("some_instances" ,"Klass", [value]) }
     end
 
@@ -120,39 +120,39 @@ class OptionsHandler
 #      with {the.primary_key == c && the.klass_name == t} do
 #      reduce build { fn('set_select', fn("some_instances" ,"Klass", values), code) }
 #    end
-    func(:reduce).seems as {fn("set_select" ,fn("all_instances" ,:klass) , msg(msg(:values ,"include?" , sql_ref(:c, :t)), '&&', :code))},
-      with {the.primary_key == c && the.klass_name == t} do
+    func(:reduce).seems as {fn("set_select" ,fn("all_instances" ,:klass) , msg(msg(:values ,"include?" , sql_ref(:c, :tbl)), '&&', :code))},
+      with {the.primary_key == c && the.klass_name == tbl} do
       reduce build { fn('set_select', fn("some_instances" ,"Klass", values), code) }
     end
-    func(:reduce).seems as {fn("set_select" ,fn("all_instances" ,:klass) ,msg(:values ,"include?" , sql_ref(:c, :t)))},
-      with {the.primary_key == c && the.klass_name == t} do
+    func(:reduce).seems as {fn("set_select" ,fn("all_instances" ,:klass) ,msg(:values ,"include?" , sql_ref(:c, :tbl)))},
+      with {the.primary_key == c && the.klass_name == tbl} do
       reduce build { fn("some_instances" ,"Klass", values) }
     end
 
  #prioritize index lookups
-    func(:reduce).seems as {msg(msg(sql_ref(:c, :t), '==', :value), '||', :code)},
-    with {the.primary_key == c && the.klass_name == t} do
-      build   {msg(msg(sql_ref(c, t), '==', value), '||', this.reduce(code))}
+    func(:reduce).seems as {msg(msg(sql_ref(:c, :tbl), '==', :value), '||', :code)},
+    with {the.primary_key == c && the.klass_name == tbl} do
+      build   {msg(msg(sql_ref(c, tbl), '==', value), '||', this.reduce(code))}
     end
-    func(:reduce).seems as {msg(:code, '||', msg(sql_ref(:c, :t), '==', :value))},
-    with {the.primary_key == c && the.klass_name == t} do
-      build   {msg(msg(sql_ref(c, t), '==', value), '||', this.reduce(code))}
+    func(:reduce).seems as {msg(:code, '||', msg(sql_ref(:c, :tbl), '==', :value))},
+    with {the.primary_key == c && the.klass_name == tbl} do
+      build   {msg(msg(sql_ref(c, tbl), '==', value), '||', this.reduce(code))}
     end
-    func(:reduce).seems as {msg(:code, '||', msg(msg(sql_ref(:c, :t), '==', :value), '||', :code2))},
-    with {the.primary_key == c && the.klass_name == t} do
-      build   {msg(msg(sql_ref(c, t), '==', value), '||',  this.reduce(msg(code, '||', this.reduce(code2))))}
+    func(:reduce).seems as {msg(:code, '||', msg(msg(sql_ref(:c, :tbl), '==', :value), '||', :code2))},
+    with {the.primary_key == c && the.klass_name == tbl} do
+      build   {msg(msg(sql_ref(c, tbl), '==', value), '||',  this.reduce(msg(code, '||', this.reduce(code2))))}
     end
-    func(:reduce).seems as {msg(msg(:values ,"include?" , sql_ref(:c, :t)), '||', :code)},
-    with {the.primary_key == c && the.klass_name == t} do
-      build   {msg(msg(values ,"include?" , sql_ref(c, t)), '||', this.reduce(code))}
+    func(:reduce).seems as {msg(msg(:values ,"include?" , sql_ref(:c, :tbl)), '||', :code)},
+    with {the.primary_key == c && the.klass_name == tbl} do
+      build   {msg(msg(values ,"include?" , sql_ref(c, tbl)), '||', this.reduce(code))}
     end
-    func(:reduce).seems as {msg(:code, '||', msg(:values ,"include?" , sql_ref(:c, :t)))},
-    with {the.primary_key == c && the.klass_name == t} do
-      build   {msg(msg(values ,"include?" , sql_ref(c, t)), '||', this.reduce(code))}
+    func(:reduce).seems as {msg(:code, '||', msg(:values ,"include?" , sql_ref(:c, :tbl)))},
+    with {the.primary_key == c && the.klass_name == tbl} do
+      build   {msg(msg(values ,"include?" , sql_ref(c, tbl)), '||', this.reduce(code))}
     end
-    func(:reduce).seems as {msg(:code, '||', msg(msg(:values ,"include?" , sql_ref(:c, :t)), '||', :code2))},
-    with {the.primary_key == c && the.klass_name == t} do
-      build   {msg(msg(values ,"include?" , sql_ref(c, t)), '||',  this.reduce(msg(code, '||', this.reduce(code2))))}
+    func(:reduce).seems as {msg(:code, '||', msg(msg(:values ,"include?" , sql_ref(:c, :tbl)), '||', :code2))},
+    with {the.primary_key == c && the.klass_name == tbl} do
+      build   {msg(msg(values ,"include?" , sql_ref(c, tbl)), '||',  this.reduce(msg(code, '||', this.reduce(code2))))}
     end
 
     func(:reduce).seems as {fn('set_size',  [])} do

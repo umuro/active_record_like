@@ -258,11 +258,11 @@ class FindConditions < GrammarBuilder
     with {all_literals?(a,b)} do
         a != b
     end
-    func(:reduce).seems as {msg(:a, '==', sql_ref(:c, :t))}, with{all_literals?(a)} do
-      build {msg(sql_ref(c, t), '==', a)}
+    func(:reduce).seems as {msg(:a, '==', sql_ref(:c, :tbl))}, with{all_literals?(a)} do
+      build {msg(sql_ref(c, tbl), '==', a)}
     end
-    func(:reduce).seems as {msg(:a, '!=', sql_ref(:c, :t))}, with{all_literals?(a)} do
-      build {msg(sql_ref(c, t), '!=', a)}
+    func(:reduce).seems as {msg(:a, '!=', sql_ref(:c, :tbl))}, with{all_literals?(a)} do
+      build {msg(sql_ref(c, tbl), '!=', a)}
     end
 
 #arithmetic

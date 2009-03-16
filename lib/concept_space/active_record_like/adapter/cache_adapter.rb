@@ -1,6 +1,7 @@
 puts "Loading CacheAdapter" if RAILS_ENV=='test'
 
 require 'concept_space/active_record_like/adapter/simple_adapter'
+require 'fileutils'
 
 module ConceptSpace
   module ActiveRecordLike
@@ -78,7 +79,18 @@ class CacheAdapter < SimpleAdapter
 
     attr_reader :uuid_generator
     def uuid_generator
-      @uuid_generator ||= UUID.new
+
+      begin
+        @uuid_generator ||= (
+        home = ENV['HOME']
+        uuid_file = File.join(home, '.ruby-uuid')
+        FileUtils.rm(uuid_file)
+        UUID.new)
+      rescue Exception => ex
+        
+        puts ex.message
+      end
+
     end
     
  protected    
