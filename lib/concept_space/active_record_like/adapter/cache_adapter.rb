@@ -84,7 +84,7 @@ class CacheAdapter < SimpleAdapter
         @uuid_generator ||= (
         home = ENV['HOME']
         uuid_file = File.join(home, '.ruby-uuid')
-        FileUtils.rm(uuid_file)
+        FileUtils.rm(uuid_file) if File.exist? uuid_file
         UUID.new)
       rescue Exception => ex
         
