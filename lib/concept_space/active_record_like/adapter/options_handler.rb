@@ -4,11 +4,11 @@ module ConceptSpace
 
 class OptionsHandler
     extend PatternMatching
-  
+
     def initialize options=nil
       @klass_name = options[:klass_name] if options
       #raise ":klass_name expected" unless @klass_name
-      @primary_key = (options[:primary_key] if options) || 'id' 
+      @primary_key = (options[:primary_key] if options) || 'id'
       @adapter = options[:adapter] if options
     end
 
@@ -35,7 +35,7 @@ class OptionsHandler
       reduce_adapt build { fn('set_last', this.setnils(find(klass,  nil, options))) }
     end
     func(:plan).seems as {find_some(:klass, :ids, :options)} do
-      reduce_adapt build { this.setnils(find(klass, ids, options)) } 
+      reduce_adapt build { this.setnils(find(klass, ids, options)) }
     end
     func(:plan).seems as {:value} do
       msg = "OptionsHandler: Unhandled query case: #{value.inspect}"
@@ -95,22 +95,22 @@ class OptionsHandler
     func(:reduce).seems as {find(:klass, :ids, :options)} do
       build { unhandled_find(klass,ids, options) }
     end
-    
+
     func(:reduce).seems as {fn('set_offset_limit', :msg, [nil, nil])} do
       msg
     end
-    
+
     func(:reduce).seems as {fn("set_select" ,fn("all_instances" ,"Klass") ,false)} do
      []
    end
 #    func(:reduce).seems as {fn("set_select" ,fn("all_instances" ,:klass) , msg(msg(:code, '&&', sql_ref(:c, :t) ,"==" , :value)))},
 #      with {the.primary_key == c && the.klass_name == t} do
 #      reduce build { fn('set_select', fn("some_instances" ,"Klass", [value]), code) }
-#    end    
+#    end
     func(:reduce).seems as {fn("set_select" ,fn("all_instances" ,:klass) , msg(msg(sql_ref(:c, :tbl) ,"==" , :value), '&&', :code))},
       with {the.primary_key == c && the.klass_name == tbl} do
       reduce build { fn('set_select', fn("some_instances" ,"Klass", [value]), code) }
-    end    
+    end
     func(:reduce).seems as {fn("set_select" ,fn("all_instances" ,:klass) ,msg(sql_ref(:c, :tbl) ,"==" , :value))},
       with {the.primary_key == c && the.klass_name == tbl} do
       reduce build { fn("some_instances" ,"Klass", [value]) }
@@ -161,13 +161,13 @@ class OptionsHandler
     func(:reduce).seems as {fn('set_each_delete', :_,  [])} do
       ''
     end
-        
+
     func(:reduce).seems as {:value} do
       value
     end
-  
+
     func(:adapt).seems as {adapter('delete', :klass, [:value])} do
-      build {adapter('delete_one', klass, value)}      
+      build {adapter('delete_one', klass, value)}
     end
 
     func(:adapt).seems as {fn('all_instances', :klass)} do
@@ -193,7 +193,7 @@ class OptionsHandler
     func(:adapt).seems as {fn('set_order', :msg, :order)} do
       build {fn('set_order', this.adapt(msg), order)}
     end
-    
+
     func(:adapt).seems as { fn("set_first" ,fn("some_instances" ,"Klass" , :ids))} do
       build {adapter("find_one" ,"Klass" , ids.first)}
     end
@@ -222,7 +222,7 @@ class OptionsHandler
     func(:adapt_size).seems as {:value} do
       value
     end
-    
+
      func(:adapt).seems as {fn('set_size', :msg)} do
       this.adapt_size build {fn('set_size', this.adapt(msg))}
     end
@@ -234,16 +234,16 @@ class OptionsHandler
     func(:adapt).seems as {:value} do
       value
     end
-   
+
     func(:setnils).seems as {find(:klass, :ids, :options)} do
       ids1 = ids; ids1 = nil if ids && ids.empty?
 
       if options.nil?
-          build { find(klass, ids1, {}) } 
+          build { find(klass, ids1, {}) }
       else
           options1 = options.dup
           options.each_pair {|key, x|
-          if x 
+          if x
             if String === x && x.chop.empty?
                 options1.delete key
             elsif Hash === x && x.empty?
@@ -254,19 +254,20 @@ class OptionsHandler
           end
           }
           options1.delete :include unless options1[:conditions]
-          throw :unsupported_option if options1[:distinct]
-          throw :unsupported_option if options1[:joins]
-          throw :unsupported_option if options1[:include]
-          throw :unsupported_option if options1[:group]
-          build { find(klass, ids1, options1) }      
+          raise "unsupported_option :distict=>#{options1[:distinct].inspect}}" if options1[:distinct]
+          raise "unsupported_option :joins=>#{options1[:joins].inspect}" if options1[:joins]
+          #raise "unsupported_option :include=>#{options1[:include].inspect}" if options1[:include]
+		  # ignoring the includes do not affect anything if they are not used in the conditions.
+          raise "unsupported_option :group=>#{options1[:group].inspect}" if options1[:group]
+          build { find(klass, ids1, options1) }
         end
     end
 
-     
+
      func(:eval).seems as {fn('set_order', :rows,  sql_sort_order(sql_ref(:col, :klass), :order) )} do
        raise "multi table sorting not supported" unless klass = the.klass_name
        rows1 = this.eval rows
-       asc = lambda {|a, b| 
+       asc = lambda {|a, b|
        x, y = a[col], b[col]
        if x.nil?
         if y.nil?
@@ -281,7 +282,7 @@ class OptionsHandler
             x <=> y
         end
        end}
-       desc = lambda {|a, b| 
+       desc = lambda {|a, b|
         y, x = a[col], b[col]
        if x.nil?
         if y.nil?
@@ -309,7 +310,7 @@ class OptionsHandler
      func(:eval).seems as {fn('set_select', :rows, :conditions)} do
        rows1 = this.eval rows
         selector = Parser::FindConditions.new(:klass_name=>the.klass_name)
-        rows1.select {|a_row| 
+        rows1.select {|a_row|
             selector.context={the.klass_name=>a_row}
             selector.eval conditions}
      end
@@ -343,7 +344,7 @@ class OptionsHandler
      func(:eval).seems as {:value} do
         raise value.inspect
     end
- 
+
 end #class OptionsHandler
 
     end
