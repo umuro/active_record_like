@@ -43,12 +43,23 @@ class GrammarBuilder
       sources = [@grammar_file]
       FileUtils.uptodate? target, sources
     end
+    
     def update
       removeTarget
-      output = `cd #{@klass_dir}; tt #{@grammar_file}`
+#      output = `cd #{@klass_dir}; tt #{@grammar_file}`
+#      CLI is not portable to windows!
+      wd = FileUtils.pwd
+      begin
+        FileUtils.cd @klass_dir
+        compiler = Treetop::Compiler::GrammarCompiler.new
+        compiler.compile @grammar_file
+      rescue
+        FileUtils.cd wd
+      end
       raise output if $? && $?.exitstatus != 0
       loadGrammarTarget
     end
+    
     def loadGrammarTarget
       load(grammarTarget)
 #      Treetop::Runtime::SyntaxNode.extend PatternMatching
